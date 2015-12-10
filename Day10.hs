@@ -14,6 +14,7 @@ key :: String
 key = "1113222113"
 
 step :: String -> String
-step x = aux =<< group x
+step = foldr aux [] . group
   where
-  aux xs = shows (length xs) [head xs]
+  aux xs = shows (length xs)
+         . showChar (head xs)
