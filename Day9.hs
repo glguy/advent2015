@@ -1,6 +1,7 @@
 module Main where
 
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 import Data.Map ( Map )
 import Data.List
 
@@ -38,4 +39,4 @@ tripLength m xs
   $ zipWith edge xs (tail xs)
 
 uniques :: Ord a => [a] -> [a]
-uniques = map head . group . sort
+uniques = Set.toList . Set.fromList
