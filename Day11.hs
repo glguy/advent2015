@@ -13,19 +13,20 @@ main =
 -- easier to write.
 solutions :: String -> [String]
 solutions = map reverse . filter isGoodPassword . iterate nextPassword . reverse
+          . startOnGood
 
 -- | Check that a string satisfies the descending and duplicate letter rules.
 isGoodPassword :: String -> Bool
-isGoodPassword p = hasPairs 2 p && hasDesc p
+isGoodPassword p = hasPairs [] 2 p && hasDesc p
 
 -- | Test that a string has at least @count@ non-overlapping double, adjacent
 -- letters.
-hasPairs :: Int {- ^ count -} -> String -> Bool
-hasPairs 0 _  = True
-hasPairs n (x:y:z)
-  | x == y    = hasPairs (n-1) z
-  | otherwise = hasPairs n (y:z)
-hasPairs _ _  = False
+hasPairs :: [Char] {- ^ pairs seen so far -} -> Int {- ^ count -} -> String -> Bool
+hasPairs _ 0 _  = True
+hasPairs seen n (x:y:z)
+  | x == y && x `notElem` seen = hasPairs (x:seen) (n-1) z
+  | otherwise = hasPairs seen n (y:z)
+hasPairs _ _ _  = False
 
 -- | Test that a string has a 3-length descending sequence.
 hasDesc :: String -> Bool
@@ -41,6 +42,13 @@ loadInput = head . words <$> readFile "input11.txt"
 -- | Test that a character is not in the set of @"iol"@
 isGoodLetter :: Char -> Bool
 isGoodLetter c = 'i' /= c && 'o' /= c && 'l' /= c
+
+-- | Clean out the starting prohibited letters
+startOnGood :: String -> String
+startOnGood [] = []
+startOnGood (x:xs)
+  | isGoodLetter x = x : startOnGood xs
+  | otherwise = succ x : map (const 'a') xs
 
 -- | Increment a string from left to right while skipping
 -- the prohibited characters.
