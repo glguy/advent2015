@@ -12,7 +12,6 @@ import Data.Int
 import qualified Data.ByteString.Lazy as L
 import qualified Data.ByteString.Lazy.Char8 as L8
 import qualified Data.Vector as Vector
-import Numeric (showHex)
 import Data.ByteString.Builder
 import Data.ByteString.Builder.Extra
                 (untrimmedStrategy, toLazyByteStringWith)
@@ -57,9 +56,9 @@ finish (Context a b c d)
 envelope :: L.ByteString -> L.ByteString
 envelope xs = toLazyByteString
    $ lazyByteString xs
-  <> word8 0x80 -- 0b10000000
+  <> word8          0x80 -- 0b10000000
   <> lazyByteString (L.replicate padLen 0)
-  <> word64LE (fromIntegral bitLen)
+  <> word64LE       (fromIntegral bitLen)
   where
   padLen   = (55 - L.length xs) `mod` 64
   bitLen   = 8 * L.length xs
