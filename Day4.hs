@@ -6,7 +6,7 @@ import Data.Bits                     ((.|.), (.&.), complement, rotateL, xor)
 import Data.ByteString.Builder       (Builder, toLazyByteString, lazyByteString, word8, word32LE, word64LE)
 import Data.ByteString.Builder.Extra (untrimmedStrategy, toLazyByteStringWith)
 import Data.Int                      (Int64)
-import Data.List                     (find, foldl', zip4)
+import Data.List                     (find, foldl', zipWith4)
 import Data.Monoid                   ((<>))
 import Data.Vector                   (Vector)
 import Data.Word                     (Word32)
@@ -90,17 +90,19 @@ addBlock ::
   Context
 addBlock st m = addState st (foldl' (doRound m) st rounds)
 
+data Round = Round Mixer !Int !Word32 !Int
+
 -- | Each element of this list corresponds to one of the 64 rounds require
 -- when incorporating a block of message into the MD5 context.
-rounds :: [(Mixer, Int, Word32, Int)]
-rounds = zip4 mixers stable ktable gtable
+rounds :: [Round]
+rounds = zipWith4 Round mixers stable ktable gtable
 
 doRound ::
-  Vector Word32             {- ^ message chunk                       -} ->
-  Context                   {- ^ incoming state                      -} ->
-  (Mixer, Int, Word32, Int) {- ^ mixer, rotation, magic, chunk index -} ->
+  Vector Word32 {- ^ message chunk                       -} ->
+  Context       {- ^ incoming state                      -} ->
+  Round         {- ^ mixer, rotation, magic, chunk index -} ->
   Context
-doRound m (Context a b c d) (mixer,s,k,g) = Context d (b + z) b c
+doRound m (Context a b c d) (Round mixer s k g) = Context d (b + z) b c
   where
   f = mixer b c d
   y = a + f + k + m Vector.! g
