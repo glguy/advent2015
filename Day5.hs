@@ -24,7 +24,7 @@ hasDouble = search $ \str ->
                   _     -> False
 
 noProhibited :: String -> Bool
-noProhibited str = not (any (\x -> x `isInfixOf` str) ["ab","cd","pq","xy"])
+noProhibited str = not (any (`isInfixOf` str) ["ab","cd","pq","xy"])
 
 search :: (String -> Bool) -> String -> Bool
 search p = any p . tails
