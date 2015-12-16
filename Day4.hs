@@ -1,31 +1,37 @@
 module Main where
 
-import Control.Monad
-import Data.Binary.Get
-import Data.Bits
-import Data.Foldable
-import Data.List
-import Data.Monoid
-import Data.Vector (Vector)
-import Data.Word
-import Data.Int
+import Control.Monad                 (replicateM)
+import Data.Binary.Get               (runGet, getWord32le)
+import Data.Bits                     ((.|.), (.&.), complement, rotateL, xor)
+import Data.ByteString.Builder       (Builder, toLazyByteString, lazyByteString, word8, word32LE, word64LE)
+import Data.ByteString.Builder.Extra (untrimmedStrategy, toLazyByteStringWith)
+import Data.Int                      (Int64)
+import Data.List                     (find, foldl', zip4)
+import Data.Monoid                   ((<>))
+import Data.Vector                   (Vector)
+import Data.Word                     (Word32)
 import qualified Data.ByteString.Lazy as L
 import qualified Data.ByteString.Lazy.Char8 as L8
 import qualified Data.Vector as Vector
-import Data.ByteString.Builder
-import Data.ByteString.Builder.Extra
-                (untrimmedStrategy, toLazyByteStringWith)
 
 main :: IO ()
 main =
-  do print (solve 5)
-     print (solve 6)
+  do [key] <- words <$> readFile "input4.txt"
+     print (solve key 5)
+     print (solve key 6)
 
-key :: String
-key = "yzbqklnj"
+-- | Find the smallest, positive integer that has the specified
+-- number of leading zeros in its hex representation.
+solve :: String -> Int64 -> Maybe Int
+solve key n = find (zeros n . adventHash key) [1..]
 
-solve :: Int64 -> Maybe Int
-solve n = find (\i -> zeros n (md5 (L8.pack (key ++ show i)))) [1..]
+-- | The "advent hash" of a number is the MD5 digest of a key string
+-- and a ASCII, base-10 representation of the number.
+adventHash ::
+  String  {- ^ player key -} ->
+  Int     {- ^ number to hash -} ->
+  L.ByteString
+adventHash key i = md5 (L8.pack (key ++ show i))
 
 -- | Test that the first @n@ digits in hex-representation of
 -- the digest are @0@.
@@ -52,7 +58,10 @@ finish (Context a b c d)
   $ word32LE a <> word32LE b <> word32LE c <> word32LE d
 
 -- | Pad out an input string to be suitable for breaking into
--- blocks for MD5
+-- blocks for MD5. This algorithm pads with a @1@ and then
+-- as many @0@ bytes as needed so that when the 8-byte length
+-- is added that the whole message's length is a multiple of
+-- 64-bytes.
 envelope :: L.ByteString -> L.ByteString
 envelope xs = toLazyByteString
    $ lazyByteString xs
@@ -71,6 +80,7 @@ toBlocks
   . takeWhile (not . L.null)
   . iterate   (L.drop 64)
 
+-- | Point-wise addition of the components of a 'Context'
 addState :: Context -> Context -> Context
 addState (Context a b c d) (Context w x y z) = Context (a+w) (b+x) (c+y) (d+z)
 
@@ -80,18 +90,10 @@ addBlock ::
   Context
 addBlock st m = addState st (foldl' (doRound m) st rounds)
 
+-- | Each element of this list corresponds to one of the 64 rounds require
+-- when incorporating a block of message into the MD5 context.
 rounds :: [(Mixer, Int, Word32, Int)]
 rounds = zip4 mixers stable ktable gtable
-
-type Mixer = Word32 -> Word32 -> Word32 -> Word32
-
-mixers :: [Mixer]
-mixers = replicate 16 =<< [m1,m2,m3,m4]
-  where
-  m1 b c d = d `xor` (b .&. (c `xor` d))
-  m2 b c d = c `xor` (d .&. (b `xor` c))
-  m3 b c d = b `xor` c `xor` d
-  m4 b c d = c `xor` (b .|. complement d)
 
 doRound ::
   Vector Word32             {- ^ message chunk                       -} ->
@@ -103,6 +105,16 @@ doRound m (Context a b c d) (mixer,s,k,g) = Context d (b + z) b c
   f = mixer b c d
   y = a + f + k + m Vector.! g
   z = rotateL y s
+
+type Mixer = Word32 -> Word32 -> Word32 -> Word32
+
+mixers :: [Mixer]
+mixers = replicate 16 =<< [m1,m2,m3,m4]
+  where
+  m1 b c d = d `xor` (b .&. (c `xor` d))
+  m2 b c d = c `xor` (d .&. (b `xor` c))
+  m3 b c d = b `xor` c `xor` d
+  m4 b c d = c `xor` (b .|. complement d)
 
 toFixedByteString :: Int -> Builder -> L.ByteString
 toFixedByteString n = toLazyByteStringWith (untrimmedStrategy n 0) L.empty
