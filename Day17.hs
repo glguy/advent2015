@@ -7,60 +7,41 @@ import Data.Maybe
 main :: IO ()
 main =
   do input <- loadInput
-     print (combinations input eggnog)
-     print (minimumCombinations input eggnog)
+     let combos = combinations input 150
+     print (sum combos)
+     print (fromMaybe 0 (find (/=0) combos))
 
 loadInput :: IO [Int]
 loadInput = map read . words <$> readFile "input17.txt"
 
-eggnog :: Int
-eggnog = 150
-
--- | Figure out how many combinations of the containers given
--- can add up to the initial amount using dynamic programming.
-combinations ::
-  [Int]   {- ^ container sizes -} ->
-  Int     {- ^ initial amount  -} ->
-  Integer {- ^ combinations    -}
-combinations sizes initialAmount = foldl' addSize noContainers sizes ! initialAmount
+-- | Given a list of container sizes and an amount,
+-- return a list of the ways to chose a subset of those containers
+-- so that they sum to the desired amount. The resulting list
+-- is arranged by number of containers used. The nth element uses
+-- n-containers (zero-indexed).
+combinations :: [Int] -> Int -> [Int]
+combinations sizes amount = [ t ! (amount, n, i) | i <- [0..n] ]
   where
-  -- make an array out of a list for some speedy indexing
-  mkArray :: [a] -> Array Int a
-  mkArray = listArray (0,initialAmount)
+  n         = length sizes
+  sizeArray = listArray (1,n) sizes
 
-  -- having considered no containers so far there is one way to store 0
-  -- liters of eggnog and no ways to store any more than that.
-  noContainers = mkArray (1:repeat 0)
+  bnds = ( (0,0,0) , (amount, n, n) )
+  t    = array bnds [ (i, ways i) | i <- range bnds ]
 
-  -- prev: Each index in the array is the number of combinations that contain
-  --       that much eggnog using the containers seen so far
-  -- size: the next container to consider
-  -- result: Each index in the array is the number of combinations that contain
-  --       that much eggnog considering this new container, too
-  addSize :: Array Int Integer -> Int -> Array Int Integer
-  addSize prev size = mkArray
-                  [ if amt < size then prev!amt
-                                  else prev!amt + prev!(amt-size)
-                  | amt <- [0..]
-                  ]
+  ways :: (Int,Int,Int) -> Int
+  ways (amt, sizeIx, containers)
 
--- | This approach is slower than the one above, but it runs fast enough
--- because the problem size is tiny and I didn't want to add the extra
--- parameter to the solution above.
-minimumCombinations :: [Int] -> Int -> Int
-minimumCombinations sizes amount
-  = fromMaybe 0
-  $ find (/= 0)
-  $ map ways [0 .. length sizes]
-  where
-  ways i = sums amount i sizes
+    -- Success, you can fit no eggnog into no containers!
+    | amt == 0 && containers == 0 = 1
 
--- | Ways to sum @n@ distinct elements from a list to hit the given target
-sums :: Int -> Int -> [Int] -> Int
-sums target = aux 0
-  where
-  aux acc _ _ | acc > target = 0
-  aux acc 0 _ | acc == target = 1
-              | otherwise = 0
-  aux acc n (x:xs) = aux (acc+x) (n-1) xs + aux acc n xs
-  aux _   _ _      = 0
+    -- Failure, ran out of containers or didn't enough enough containers
+    | amt == 0 || sizeIx == 0 || containers == 0 = 0
+
+    -- This container doesn't fit, try the next one
+    | amt < containerSize = t ! (amt, sizeIx - 1, containers)
+
+    -- This container works, let's try with it and without it
+    | otherwise = t ! (amt                , sizeIx - 1, containers    )
+                + t ! (amt - containerSize, sizeIx - 1, containers - 1)
+    where
+    containerSize = sizeArray ! sizeIx
