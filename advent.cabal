@@ -150,3 +150,8 @@ executable Day24
   main-is:             Day24.hs
   build-depends:       base >=4.8 && <4.9
   default-language:    Haskell2010
+
+executable Day25
+  main-is:             Day25.hs
+  build-depends:       base >=4.8 && <4.9, integer-gmp >=1.0 && <1.1
+  default-language:    Haskell2010
