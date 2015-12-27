@@ -1,10 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
-import Control.Lens
 import Data.Aeson
-import Data.Aeson.Lens
+import Data.Foldable
 import Data.Scientific
+import qualified Data.ByteString as B
 
 main :: IO ()
 main =
@@ -14,19 +14,33 @@ main =
 
 -- | Sum of all numbers in a JSON value.
 sumOfNumbers :: Value -> Scientific
-sumOfNumbers = sumOf (deep _Number)
+sumOfNumbers = sumOfNumbers' 0
 
 -- | Sum of all numbers in a JSON value after
 -- pruning out portions that fail the 'noRed' test.
 sumOfNonredNumbers :: Value -> Scientific
-sumOfNonredNumbers = sumOf (deepOf (plate . filtered noRed) _Number)
-
--- | Returns True for all Values that are not Objects
--- with any @"red"@ values.
-noRed :: Value -> Bool
-noRed = notElemOf (_Object . folded) "red"
+sumOfNonredNumbers = sumOfNonredNumbers' 0
 
 -- | Load the input file as a JSON value.
 loadInput :: IO Value
-loadInput = (^?! _Value) <$> readFile "input12.txt"
+loadInput =
+  do contents <- B.readFile "input12.txt"
+     case decodeStrict' contents of
+       Just v -> return v
+       Nothing -> fail "Bad JSON document"
 
+sumOfNumbers' :: Scientific -> Value -> Scientific
+sumOfNumbers' acc v =
+  case v of
+    Number n -> acc+n
+    Object o -> foldl' sumOfNumbers' acc o
+    Array a  -> foldl' sumOfNumbers' acc a
+    _        -> acc
+
+sumOfNonredNumbers' :: Scientific -> Value -> Scientific
+sumOfNonredNumbers' acc v =
+  case v of
+    Number n -> acc+n
+    Object o | "red" `notElem` o -> foldl' sumOfNonredNumbers' acc o
+    Array a  -> foldl' sumOfNonredNumbers' acc a
+    _        -> acc

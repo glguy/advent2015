@@ -4,8 +4,9 @@ import Data.List
 import Data.Maybe
 import Data.Monoid
 import Data.Ord
+import Data.Foldable
 
-data Packages = Packages { pkgSum, pkgCount :: !Int, pkgProduct :: !Integer }
+data Packages = Packages { pkgSum, pkgCount, pkgProduct :: !Int }
   deriving (Eq, Show)
 
 noPackages :: Packages
@@ -28,16 +29,16 @@ instance Ord Packages where
 loadInput :: IO [Int]
 loadInput = map read . lines <$> readFile "input24.txt"
 
-search :: Int -> [Int] -> Maybe Packages
+search :: Int -> [Int] -> Maybe Int
 search n ps0 = listToMaybe $
   do (pkg,ps1) <- sortBy (comparing fst) (start ps0)
      moreGroups (n-1) ps1
-     return pkg
+     return (pkgProduct pkg)
      
   where
   goal = sum ps0 `quot` n
 
-  moreGroups 0 _ = [()]
+  moreGroups 1 _ = [()]
   moreGroups i ps1 =
     do (_,ps2) <- start ps1
        moreGroups (i-1) ps2
@@ -54,5 +55,5 @@ search n ps0 = listToMaybe $
 main :: IO ()
 main =
   do input <- loadInput
-     print (fmap pkgProduct (search 3 input))
-     print (fmap pkgProduct (search 4 input))
+     print (search 3 input)
+     print (search 4 input)
