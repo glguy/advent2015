@@ -1,46 +1,61 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving, OverloadedStrings #-}
 module Main where
 
 import Data.Aeson
 import Data.Foldable
+import Data.Monoid
 import Data.Scientific
 import qualified Data.ByteString as B
 
 main :: IO ()
 main =
-  do input <- loadInput
-     print (sumOfNumbers input)
+  do input <- loadInput "input12.txt"
+     print (sumOfNumbers       input)
      print (sumOfNonredNumbers input)
 
 -- | Sum of all numbers in a JSON value.
 sumOfNumbers :: Value -> Scientific
-sumOfNumbers = sumOfNumbers' 0
+sumOfNumbers = sum . getList . numbers
 
 -- | Sum of all numbers in a JSON value after
 -- pruning out portions that fail the 'noRed' test.
 sumOfNonredNumbers :: Value -> Scientific
-sumOfNonredNumbers = sumOfNonredNumbers' 0
+sumOfNonredNumbers = sum . getList . nonredNumbers
 
 -- | Load the input file as a JSON value.
-loadInput :: IO Value
-loadInput =
-  do contents <- B.readFile "input12.txt"
+loadInput :: FilePath -> IO Value
+loadInput filename =
+  do contents <- B.readFile filename
      case decodeStrict' contents of
-       Just v -> return v
+       Just v  -> return v
        Nothing -> fail "Bad JSON document"
 
-sumOfNumbers' :: Scientific -> Value -> Scientific
-sumOfNumbers' acc v =
+-- | List of all the number values in in JSON value.
+numbers :: Value -> DList Scientific
+numbers v =
   case v of
-    Number n -> acc+n
-    Object o -> foldl' sumOfNumbers' acc o
-    Array a  -> foldl' sumOfNumbers' acc a
-    _        -> acc
+    Number n -> singleton n
+    Object o -> foldMap numbers o
+    Array  a -> foldMap numbers a
+    _        -> mempty
 
-sumOfNonredNumbers' :: Scientific -> Value -> Scientific
-sumOfNonredNumbers' acc v =
+-- | List of all the number values in in JSON value
+-- excluding objects containing the value @"red"@.
+nonredNumbers :: Value -> DList Scientific
+nonredNumbers v =
   case v of
-    Number n -> acc+n
-    Object o | "red" `notElem` o -> foldl' sumOfNonredNumbers' acc o
-    Array a  -> foldl' sumOfNonredNumbers' acc a
-    _        -> acc
+    Number n                     -> singleton n
+    Object o | "red" `notElem` o -> foldMap nonredNumbers o
+    Array  a                     -> foldMap nonredNumbers a
+    _                            -> mempty
+
+------------------------------------------------------------------------
+
+-- | A list type that doesn't penalize left-nested appends.
+newtype DList a = DList (Endo [a]) deriving (Monoid)
+
+singleton :: a -> DList a
+singleton = DList . Endo . (:)
+
+getList :: DList a -> [a]
+getList (DList f) = appEndo f []
