@@ -9,22 +9,23 @@ main =
      print [lookup "Sue" props | props <- input, matchesClues2 props]
 
 matchesClues1 :: [(String,Int)] -> Bool
-matchesClues1 = all $ \(prop,memory) ->
-  case lookup prop clues of
-    Nothing           -> True
-    Just mfcsam       -> mfcsam == memory
+matchesClues1 = matcher (const (==))
 
 matchesClues2 :: [(String,Int)] -> Bool
-matchesClues2 = all $ \(prop,memory) ->
+matchesClues2 =
+  matcher $ \prop ->
+    case prop of
+      "cats"        -> (<)
+      "trees"       -> (<)
+      "pomeranians" -> (>)
+      "goldfish"    -> (>)
+      _             -> (==)
+
+matcher :: (String -> Int -> Int -> Bool) -> [(String,Int)] -> Bool
+matcher match = all $ \(prop,memory) ->
   case lookup prop clues of
     Nothing           -> True
-    Just mfcsam       ->
-      case prop of
-        "cats"        -> mfcsam <  memory
-        "trees"       -> mfcsam <  memory
-        "pomeranians" -> mfcsam >  memory
-        "goldfish"    -> mfcsam >  memory
-        _             -> mfcsam == memory
+    Just mfcsam       -> match prop mfcsam memory
 
 clues :: [(String,Int)]
 clues = parseLine
@@ -43,11 +44,7 @@ loadInput :: IO [[(String,Int)]]
 loadInput = map parseLine . lines <$> readFile "input16.txt"
 
 parseLine :: String -> [(String,Int)]
-parseLine = asProps . words'
-
--- | Words without punctuation
-words' :: String -> [String]
-words' = words . filter (not . isPunctuation)
+parseLine = asProps . words . filter (not . isPunctuation)
 
 asProps :: [String] -> [(String,Int)]
 asProps []      = []
