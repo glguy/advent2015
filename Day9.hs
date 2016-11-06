@@ -17,14 +17,14 @@ edgeParts (Edge x y) = [x,y]
 
 main :: IO ()
 main =
-  do input <- loadInput
+  do input <- loadInput "input9.txt"
      let places = uniques (concatMap edgeParts (Map.keys input))
          costs  = tripLength input <$> permutations places
      print (minimum costs)
      print (maximum costs)
 
-loadInput :: IO (Map Edge Int)
-loadInput = Map.fromList . map parse . lines <$> readFile "input9.txt"
+loadInput :: FilePath -> IO (Map Edge Int)
+loadInput filename = Map.fromList . map parse . lines <$> readFile filename
 
 parse :: String -> (Edge, Int)
 parse ln =
@@ -33,10 +33,9 @@ parse ln =
     _                -> error ("Bad line: " ++ ln)
 
 tripLength :: Map Edge Int -> [String] -> Int
-tripLength m xs
-  = sum
-  $ map (m Map.!)
-  $ zipWith edge xs (tail xs)
+tripLength m xs = sum (zipWith edgeLength xs (tail xs))
+  where
+    edgeLength x y = m Map.! edge x y
 
 uniques :: Ord a => [a] -> [a]
 uniques = Set.toList . Set.fromList
