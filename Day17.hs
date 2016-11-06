@@ -1,4 +1,4 @@
-module Day17 where
+module Main where
 
 import Data.Array
 import Data.List
