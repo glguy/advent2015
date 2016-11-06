@@ -37,10 +37,11 @@ divisions cnt n =
      return (x:xs)
 
 parseLine :: String -> [Integer]
-parseLine str =
-  case words (filter (/= ',') str) of
-    [_,_,v,_,w,_,x,_,y,_,z] -> read <$> [v,w,x,y,z]
-    _ -> error ("Bad input: " ++ str)
+parseLine = map read . everyOther . drop 1 . words . filter (/=',')
+
+everyOther :: [a] -> [a]
+everyOther (_:x:xs) = x : everyOther xs
+everyOther _        = []
 
 loadInput :: IO [[Integer]]
 loadInput = map parseLine . lines <$> readFile "input15.txt"
