@@ -10,6 +10,7 @@ data Instr
   = Half Register
   | Triple Register
   | Increment Register
+  | Copy Int Register
   | Jump Int
   | JumpIfEven Register Int
   | JumpIfOne Register Int
@@ -28,6 +29,7 @@ parseLine str =
     ["tpl",r]   -> Triple (parseRegister r)
     ["inc",r]   -> Increment (parseRegister r)
     ["jmp",o]   -> Jump (read o)
+    ["cpy",r,o]   -> Copy (read o) (parseRegister o)
     ["jie",r,o] -> JumpIfEven (parseRegister r) (read o)
     ["jio",r,o] -> JumpIfOne (parseRegister r) (read o)
     _ -> error str

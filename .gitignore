@@ -1,4 +1,6 @@
 /dist
+/dist-newstyle
+/.ghc.environment.*
 /stack.yaml
 /.stack-work
 .*.swp
