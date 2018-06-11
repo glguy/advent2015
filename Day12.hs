@@ -52,7 +52,7 @@ nonredNumbers v =
 ------------------------------------------------------------------------
 
 -- | A list type that doesn't penalize left-nested appends.
-newtype DList a = DList (Endo [a]) deriving (Monoid)
+newtype DList a = DList (Endo [a]) deriving (Semigroup, Monoid)
 
 singleton :: a -> DList a
 singleton = DList . Endo . (:)
