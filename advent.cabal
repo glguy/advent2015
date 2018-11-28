@@ -17,113 +17,113 @@ source-repository head
 
 executable Day1
   main-is:             Day1.hs
-  build-depends:       base >=4.8 && <4.12
+  build-depends:       base >=4.8 && <4.13
   default-language:    Haskell2010
 
 executable Day2
   main-is:             Day2.hs
-  build-depends:       base >=4.8 && <4.12, split >=0.2 && <0.3
+  build-depends:       base >=4.8 && <4.13, split >=0.2 && <0.3
   default-language:    Haskell2010
 
 executable Day3
   main-is:             Day3.hs
-  build-depends:       base       >=4.8 && <4.12,
+  build-depends:       base       >=4.8 && <4.13,
                        split      >=0.2 && <0.3,
-                       containers >=0.5 && <0.6
+                       containers >=0.5 && <0.7
   default-language:    Haskell2010
 
 executable Day4
   main-is:             Day4.hs
-  build-depends:       base       >=4.8   && <4.12,
-                       binary     >=0.7.5 && <0.9,
+  build-depends:       base       >=4.8   && <4.13,
+                       binary     >=0.7.5 && <0.11,
                        bytestring >=0.10  && <0.11,
                        vector     >=0.11  && <0.13
   default-language:    Haskell2010
 
 executable Day5
   main-is:             Day5.hs
-  build-depends:       base >=4.8 && <4.12
+  build-depends:       base >=4.8 && <4.13
   default-language:    Haskell2010
 
 executable Day6
   main-is:             Day6.hs
-  build-depends:       base >=4.8 && <4.12, array >=0.5 && <0.6
+  build-depends:       base >=4.8 && <4.13, array >=0.5 && <0.6
   default-language:    Haskell2010
 
 executable Day7
   main-is:             Day7.hs
-  build-depends:       base >=4.8 && <4.12, containers >=0.5 && <0.6
+  build-depends:       base >=4.8 && <4.13, containers >=0.5 && <0.7
   default-language:    Haskell2010
 
 executable Day8
   main-is:             Day8.hs
-  build-depends:       base >=4.8 && <4.12
+  build-depends:       base >=4.8 && <4.13
   default-language:    Haskell2010
 
 executable Day9
   main-is:             Day9.hs
-  build-depends:       base >=4.8 && <4.12, containers >=0.5 && <0.6
+  build-depends:       base >=4.8 && <4.13, containers >=0.5 && <0.7
   default-language:    Haskell2010
 
 executable Day10
   main-is:             Day10.hs
-  build-depends:       base >=4.8 && <4.12
+  build-depends:       base >=4.8 && <4.13
   default-language:    Haskell2010
 
 executable Day11
   main-is:             Day11.hs
-  build-depends:       base >=4.8 && <4.12
+  build-depends:       base >=4.8 && <4.13
   default-language:    Haskell2010
 
 executable Day12
   main-is:             Day12.hs
-  build-depends:       base >=4.11 && <4.12,
+  build-depends:       base >=4.11 && <4.13,
                        bytestring >=0.10 && <0.11,
-                       aeson >=0.9 && <1.3,
+                       aeson >=1.4 && <1.5,
                        scientific >=0.3 && <0.4
   default-language:    Haskell2010
 
 executable Day13
   main-is:             Day13.hs
-  build-depends:       base >=4.8 && <4.12,
-                       containers >=0.5 && <0.6
+  build-depends:       base >=4.8 && <4.13,
+                       containers >=0.5 && <0.7
   default-language:    Haskell2010
 
 executable Day14
   main-is:             Day14.hs
-  build-depends:       base >=4.8 && <4.12
+  build-depends:       base >=4.8 && <4.13
   default-language:    Haskell2010
 
 executable Day15
   main-is:             Day15.hs
-  build-depends:       base >=4.8 && <4.12
+  build-depends:       base >=4.8 && <4.13
   default-language:    Haskell2010
 
 executable Day16
   main-is:             Day16.hs
-  build-depends:       base >=4.8 && <4.12
+  build-depends:       base >=4.8 && <4.13
   default-language:    Haskell2010
 
 executable Day17
   main-is:             Day17.hs
-  build-depends:       base >=4.8 && <4.12, array >=0.5 && <0.6
+  build-depends:       base >=4.8 && <4.13, array >=0.5 && <0.6
   default-language:    Haskell2010
 
 executable Day18
   main-is:             Day18.hs
-  build-depends:       base >=4.8 && <4.12, array >=0.5 && <0.6
+  build-depends:       base >=4.8 && <4.13, array >=0.5 && <0.6
   default-language:    Haskell2010
 
 executable Day19
   main-is:             Day19.hs
-  build-depends:       base >=4.8 && <4.12,
+  build-depends:       base >=4.8 && <4.13,
                        array >=0.5 && <0.6,
-                       containers >=0.5 && <0.6
+                       containers >=0.5 && <0.7
   default-language:    Haskell2010
 
 executable Day20
   main-is:             Day20.hs
-  build-depends:       base  >=4.8 && <4.12,
+  build-depends:       base  >=4.8 && <4.13,
                        array >=0.5 && <0.6,
                        loops >=0.2 && <0.3,
                        transformers >=0.2 && <0.6
@@ -131,27 +131,27 @@ executable Day20
 
 executable Day21
   main-is:             Day21.hs
-  build-depends:       base >=4.8 && <4.12
+  build-depends:       base >=4.8 && <4.13
   default-language:    Haskell2010
 
 executable Day22
   main-is:             Day22.hs
-  build-depends:       base >=4.8 && <4.12,
-                       containers >=0.5 && <0.6
+  build-depends:       base >=4.8 && <4.13,
+                       containers >=0.5 && <0.7
   default-language:    Haskell2010
 
 executable Day23
   main-is:             Day23.hs
   other-modules:       Day23TH
-  build-depends:       base >=4.8 && <4.12, array >=0.5 && <0.6, template-haskell >=2.10 && <2.14
+  build-depends:       base >=4.8 && <4.13, array >=0.5 && <0.6, template-haskell >=2.10 && <2.15
   default-language:    Haskell2010
 
 executable Day24
   main-is:             Day24.hs
-  build-depends:       base >=4.8 && <4.12
+  build-depends:       base >=4.8 && <4.13
   default-language:    Haskell2010
 
 executable Day25
   main-is:             Day25.hs
-  build-depends:       base >=4.8 && <4.12, integer-gmp >=1.0 && <1.1
+  build-depends:       base >=4.8 && <4.13, integer-gmp >=1.0 && <1.1
   default-language:    Haskell2010
