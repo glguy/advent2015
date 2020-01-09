@@ -19,6 +19,9 @@ part1 str = 2 + sum (aux (init (tail str)))
   aux []                = []
 
 part2 :: String -> Int
-part2 str = 2 + length (filter isExpand str)
+part2 str = 2 + count isExpand str
   where
   isExpand x = x `elem` "\\\""
+
+count :: (a -> Bool) -> [a] -> Int
+count p xs = length (filter p xs)
